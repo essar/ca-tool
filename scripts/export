@@ -42,7 +42,7 @@ if [ ! -f "$keyfile" ]; then
     exit 1
 fi
 
-certificate="$certs_home/$host/$host.crt"
+certificate="$ca_root/$host/$host.crt"
 if [ ! -f "$certificate" ]; then
     echo Certificate not found.
     exit 1

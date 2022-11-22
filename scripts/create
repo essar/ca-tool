@@ -87,10 +87,10 @@ CERTFQDN="$host.$DOMAIN" openssl ca \
   -keyfile "$ca_private_root/$ca-private.key"
 
 # Remove the CSR if it was created
-if [ -x "$host_root/$host.csr" ]; then rm "$host_root/$host.csr"; fi
+if [ -f "$host_root/$host.csr" ]; then rm "$host_root/$host.csr"; fi
 
 # If certificate was created
-if [ -x "$host_root/$host.crt" ]; then
+if [ -f "$host_root/$host.crt" ]; then
     # Copy the certificate to the certs folder
     cp "$host_root/$host.crt" "$certs_root/$host.crt"
 
