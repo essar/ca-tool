@@ -3,6 +3,9 @@ FROM alpine
 # Install dependencies
 RUN apk add bash openssl zip
 
+RUN addgroup catool
+RUN adduser -g "catool" -G catool -h "/ca" -H catool
+
 # Global envvars
 ENV ca_home="/ca"
 ENV certs_home="/certs"
