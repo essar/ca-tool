@@ -1,0 +1,78 @@
+#!/bin/bash
+
+POSITIONAL_ARGS=()
+while [ $# -gt 0 ]; do
+  case $1 in
+    --ca)
+      ca="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    --days)
+      days="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+host="$1"
+
+if [ -z "$ca" ]; then
+  ca_root="$ca_home"
+else
+  ca_root="$ca_home/$ca"
+fi
+
+# Check CA folder exists
+if [ ! -x "$ca_root" ]; then
+  echo CA not found.
+  exit 1
+fi
+
+# Switch to CA root
+cd "$ca_root"
+
+# Create link to private home
+if [ -d "$ca_private/$ca" ]; then
+  ln -s "$ca_private/$ca" ".private"
+else
+  echo Could not open private store.
+  exit 1
+fi
+
+host_root="$certs_home/$host"
+mkdir -p "$host_root"
+
+# Create key pair
+openssl genrsa -out "$host_root/$host-private.key" 4096
+
+# Create a CSR
+openssl req -new \
+  -out "$host_root/$host.csr" \
+  -key "$host_root/$host-private.key" \
+  -config "ca-openssl.cnf"
+
+CERTFQDN="$host.$DOMAIN" openssl ca \
+  -in "$host_root/$host.csr" \
+  -out "$host_root/$host.crt" \
+  -config "ca-openssl.cnf" \
+  -extensions x509v3_FQDN \
+  -days ${days:-730} \
+  -cert "$ca-ca.crt" \
+  -keyfile ".private/$ca-private.key"
+
+# Remove the CSR if it was created
+if [ -x "$host_root/$host.csr" ]; then rm "$host_root/$host.csr"; fi
+
+# Remove symlink
+rm ".private"

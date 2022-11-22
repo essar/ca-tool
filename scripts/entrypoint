@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Set global envvars
+for f in *.env; do
+    source "$f"
+fi
+
+exec "/app/$@"

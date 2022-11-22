@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function print_expires {
+    expiry="$(openssl x509 -in $1 -noout -enddate)"
+    echo "$expiry"
+}
+
+function print_dn {
+    dn="$(openssl x509 -in $1 -noout -subject)"
+    echo "$dn" 
+}
+
+# Parseargs
+host="$1"
+certificate="$certs_home/$host/$host.crt"
+
+
+# Return the encoded certificate
+echo "================================"
+echo "= Public certificate"
+echo "= $(print_dn $certificate)"
+echo "= $(print_expires $certificate)"
+echo "================================"
+openssl x509 -in "$certificate"

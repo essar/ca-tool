@@ -1,0 +1,6 @@
+# Test stores
+.test*/
+
+# Local scripts
+*test
+*local

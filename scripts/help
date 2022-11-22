@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cat <<EOF
+
+Commands:
+  get <host>   output a certificate
+
+EOF
