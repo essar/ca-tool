@@ -72,5 +72,5 @@ echo "================================"
 openssl pkcs12 -export \
   -inkey "$keyfile" \
   -in "$certificate" \
-  -in "$cacert" \
-  -out "$certs_root/$host.p12"
+  -CAfile "$cacert" \
+  -out "$certs_root/$host.pfx"
