@@ -1,0 +1,61 @@
+#!/bin/bash
+
+POSITIONAL_ARGS=()
+while [ $# -gt 0 ]; do
+  case $1 in
+    --ca)
+      ca="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+host="$1"
+
+if [ -z "$ca" ]; then
+  ca_root="$ca_home"
+else
+  ca_root="$ca_home/$ca"
+fi
+
+# Check CA folder exists
+if [ ! -x "$ca_root" ]; then
+  echo CA not found.
+  exit 1
+fi
+
+# Parseargs
+host="$1"
+keyfile="$ca_root/$host/$host-private.key"
+if [ ! -f "$keyfile" ]; then
+    echo Key not found.
+    exit 1
+fi
+
+certificate="$certs_home/$host/$host.crt"
+if [ ! -f "$certificate" ]; then
+    echo Certificate not found.
+    exit 1
+fi
+
+cacert="$ca_root/$ca-ca.crt"
+
+# Export the key and certificates
+echo "================================"
+echo "= PKCS12 File"
+echo "================================"
+openssl pkcs12 -export \
+  -inkey "$keyfile" \
+  -in "$certificate" \
+  -chain -CAfile "$cacert" \
+  -out "$ca_root/$host/$host.p12"
