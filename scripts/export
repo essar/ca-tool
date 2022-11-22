@@ -70,7 +70,7 @@ echo "================================"
 echo "= PKCS12 File"
 echo "================================"
 openssl pkcs12 -export \
-  -in "$certificate" \
   -inkey "$keyfile" \
-  -CAfile "$cacert" \
+  -in "$certificate" \
+  -in "$cacert" \
   -out "$certs_root/$host.p12"
