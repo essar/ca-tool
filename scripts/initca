@@ -33,7 +33,10 @@ cat "$script_root/.default_ca/default-config.cnf" > "ca-openssl.cnf"
 # Create the CA signing key
 openssl genrsa -aes256 -out "$ca_private_root/$ca-private.key" 4096
 
-# Create the CA intermediate CSR
+# Write-protect the key
+chmod 400 "$ca_private_root/$ca-private.key"
+
+# Create the CA intermediate certificate
 openssl req -new -x509 \
   -out "$ca-ca.crt" \
   -key "$ca_private_root/$ca-private.key" \

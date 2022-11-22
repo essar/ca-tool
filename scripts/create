@@ -68,6 +68,9 @@ datestr="$(date +%Y%m%d-%H%M%S)"
 # Create key pair
 openssl genrsa -out "$host_root/$host-private.key" 4096
 
+# Write-protect the key
+chmod 400 "$host_root/$host-private.key"
+
 # Create a CSR
 openssl req -new \
   -out "$host_root/$host.csr" \

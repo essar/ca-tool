@@ -5,4 +5,7 @@ for f in *.env; do
     source "$f"
 done
 
+# Change user
+su $USER
+
 exec "/app/$@"
