@@ -58,6 +58,13 @@ fi
 
 cacert="$ca_root/$ca-ca.crt"
 
+
+# Create certs root folder if it doesn't exist
+certs_root="$certs_home/$host"
+if [ ! -d "$certs_root" ]; then
+    mkdir -p "$certs_root"
+fi
+
 # Export the key and certificates
 echo "================================"
 echo "= PKCS12 File"
@@ -66,4 +73,4 @@ openssl pkcs12 -export \
   -in "$certificate" \
   -inkey "$keyfile" \
   -CAfile "$cacert" \
-  -out "$host.p12"
+  -out "$certs_root/$host.p12"
