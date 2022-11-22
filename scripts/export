@@ -34,15 +34,23 @@ if [ ! -x "$ca_root" ]; then
   exit 1
 fi
 
+# Check host folder exists
+if [ ! -x "$ca_root/$host" ]; then
+  echo Host not found.
+  exit 1
+fi
+
+# Switch to host root
+cd "$ca_root/$host"
+
 # Parseargs
-host="$1"
-keyfile="$ca_root/$host/$host-private.key"
+keyfile="$host-private.key"
 if [ ! -f "$keyfile" ]; then
     echo Key not found.
     exit 1
 fi
 
-certificate="$ca_root/$host/$host.crt"
+certificate="$host.crt"
 if [ ! -f "$certificate" ]; then
     echo Certificate not found.
     exit 1
@@ -55,7 +63,7 @@ echo "================================"
 echo "= PKCS12 File"
 echo "================================"
 openssl pkcs12 -export \
-  -inkey "$keyfile" \
   -in "$certificate" \
-  -chain -CAfile "$cacert" \
-  -out "$ca_root/$host/$host.p12"
+  -inkey "$keyfile" \
+  -CAfile "$cacert" \
+  -out "$host.p12"
