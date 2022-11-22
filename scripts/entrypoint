@@ -5,4 +5,4 @@ for f in *.env; do
     source "$f"
 done
 
-sudo -u $USER exec "/app/$@"
+exec "/app/$@"

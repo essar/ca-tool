@@ -23,5 +23,7 @@ RUN chmod -R u+x /app/*
 
 WORKDIR /app
 
+USER catool
+
 # Set up the entry point
 ENTRYPOINT [ "/app/entrypoint" ]
