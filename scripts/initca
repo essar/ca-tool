@@ -21,30 +21,24 @@ touch index.txt
 echo 01 > serial
 echo 01 > crlnumber
 
+ca_private_root="$ca_private/$ca"
 # Create private store
-if [ ! -x "$ca_private/$ca" ]; then
-  mkdir -p "$ca_private/$ca"
+if [ ! -x "$ca_private_root" ]; then
+  mkdir -p "$ca_private_root"
 fi
-# Create link to private home
-ln -s "$ca_private/$ca" ".private"
 
 # Create config files
 cat "$script_root/.default_ca/default-config.cnf" > "ca-openssl.cnf"
 
 # Create the CA signing key
-openssl genrsa -aes256 -out ".private/$ca-private.key" 4096
+openssl genrsa -aes256 -out "$ca_private_root/$ca-private.key" 4096
 
 # Create the CA intermediate CSR
 openssl req -new -x509 \
   -out "$ca-ca.crt" \
-  -key ".private/$ca-private.key" \
+  -key "$ca_private_root/$ca-private.key" \
   -config "ca-openssl.cnf" \
   -extensions x509v3_CA \
   -days 3650
-
-# Ensure any set password is removed
-unset pw
-# Remove the symlink
-rm ".private"
 
 echo CA $ca created.

@@ -3,6 +3,7 @@
 cat <<EOF
 
 Commands:
-  get <host>   output a certificate
-
+  create <host> [--ca <ca>]     Create and sign a new certificate
+  get <host>                    Output a certificate
+  initca <ca>                   Initialise a new CA
 EOF

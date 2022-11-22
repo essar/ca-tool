@@ -3,6 +3,6 @@
 # Set global envvars
 for f in *.env; do
     source "$f"
-fi
+done
 
 exec "/app/$@"
