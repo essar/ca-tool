@@ -13,9 +13,9 @@ jobs:
         run: echo "fqdn = $(cat hosts/testhost/testhost.yaml | yq '.fqdn')" >> $GITHUB_OUTPUT"
       - name: Print FQDN
         run: echo "${{ steps.readfile.outputs.fqdn }}"
-  sign_csr:
-    name: Sign CSR
-    runs-on: ubuntu-latest
-  cleanup:
-    name: Cleanup
-    runs-on: ubuntu-latest
+#  sign_csr:
+#    name: Sign CSR
+#    runs-on: ubuntu-latest
+#  cleanup:
+#    name: Cleanup
+#    runs-on: ubuntu-latest
