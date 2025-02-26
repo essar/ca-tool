@@ -16,7 +16,7 @@ jobs:
       - name: Create key
         run: openssl genrsa -out key.pem 2048
       - name: Create CSR
-        run: openssl req -new -key key.pem -out ${{ steps.readfile.outputs.fqdn }}.csr
+        run: openssl req -new -key key.pem -out ${{ steps.readfile.outputs.fqdn }}.csr -config .default_ca/default-config.cnf -subj "/CN=${{ steps.readfile.outputs.fqdn }}\/emailAddress=admin@${{ steps.readfile.outputs.fqdn }}/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
 #  sign_csr:
 #    name: Sign CSR
 #    runs-on: ubuntu-latest
