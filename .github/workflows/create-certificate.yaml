@@ -14,13 +14,13 @@ jobs:
       - name: Print FQDN
         run: echo "${{ steps.readfile.outputs.fqdn }}"
       - name: Create key
-        run: openssl genrsa -out key.pem 2048
+        run: openssl genrsa -out hosts/testhost/key.pem 2048
       - name: Create CSR
-        run: openssl req -new -key key.pem -out ${{ steps.readfile.outputs.fqdn }}.csr -config .default_ca/default-config.cnf -subj "/CN=${{ steps.readfile.outputs.fqdn }}\/emailAddress=admin@${{ steps.readfile.outputs.fqdn }}/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
+        run: openssl req -new -key hosts/testhost/key.pem -out hosts/testhost/${{ steps.readfile.outputs.fqdn }}.csr -config .default_ca/default-config.cnf -subj "/CN=${{ steps.readfile.outputs.fqdn }}\/emailAddress=admin@${{ steps.readfile.outputs.fqdn }}/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
       - name: Commit CSR
         uses: EndBug/add-and-commit@v9.1.4
         with:
-          add: ${{ steps.readfile.outputs.fqdn }}.csr
+          add: hosts/testhost/${{ steps.readfile.outputs.fqdn }}.csr
           author_name: Steve
           author_email: steve.roberts@essarsoftware.co.uk
           fetch: false
