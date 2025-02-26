@@ -1,0 +1,7 @@
+fqdn: testhost.domain.com
+description: |
+  A test server used for testing
+certificate:
+  enabled: true
+  ca: internal
+  valid_days: 720

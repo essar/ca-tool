@@ -1,0 +1,21 @@
+name: Create Certificate
+on:
+  push:
+jobs:
+  create_csr:
+    name: Create CSR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: Read file
+        id: readfile
+        run: echo "fqdn = $(cat hosts/testhost/testhost.yaml | yq '.fqdn')" >> $GITHUB_OUTPUT"
+      - name: Print FQDN
+        run: echo "${{ steps.readfile.outputs.fqdn }}"
+  sign_csr:
+    name: Sign CSR
+    runs-on: ubuntu-latest
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
