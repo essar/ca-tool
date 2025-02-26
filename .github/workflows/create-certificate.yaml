@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Read file
         id: readfile
-        run: echo "fqdn = $(cat hosts/testhost/testhost.yaml | yq '.fqdn')" >> $GITHUB_OUTPUT"
+        run: echo "fqdn=$(cat hosts/testhost/testhost.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
       - name: Print FQDN
         run: echo "${{ steps.readfile.outputs.fqdn }}"
 #  sign_csr:
