@@ -1,14 +1,13 @@
 FROM alpine
 
 # Install dependencies
-RUN apk add bash openssl yq zip
+RUN apk add bash git openssl yq zip
 
 RUN addgroup catool
 RUN adduser -D -g "catool" -G catool -h "/ca" -H catool
 
 # Global envvars
 ENV ca_home="/ca"
-ENV certs_home="/certs"
 ENV ca_private="/.private"
 ENV USER="root"
 
@@ -23,7 +22,6 @@ USER catool
 
 # Set up volumes
 VOLUME [ "/ca" ]
-VOLUME [ "/certs" ]
 VOLUME [ "/.private" ]
 
 WORKDIR /ca
