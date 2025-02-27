@@ -12,7 +12,7 @@ if [[ ! -f "hosts/$host/$host.yaml" ]]; then
 fi
 
 # Make sure we're working with the latest CA
-git pull
+#git pull >> git.log
 
 # Read data from config
 fqdn=$(cat "hosts/$host/$host.yaml" | yq '.fqdn')
@@ -34,7 +34,7 @@ openssl req -new \
   #-days "$days"
 
 # Persist the CSR
-git add "hosts/$host/$host.csr" && git commit -m "Create CSR for $host"
+git add "hosts/$host/$host.csr" && git commit -m "Create CSR for $host" >> git.log
 
 # Echo the key
 cat "/.private/$host-private.key"
