@@ -32,14 +32,19 @@ jobs:
           path: hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id }}.csr
           retention-days: 3
       
-#  sign_csr:
-#    name: Sign CSR
-#    runs-on: ubuntu-latest
-# steps:
-#  - name: Download a single artifact
-#  uses: actions/download-artifact@v4
-#  with:
-#    name: my-artifact
+  sign_csr:
+    name: Sign CSR
+    runs-on: ubuntu-latest
+    env:
+      ca: default
+      host: testhost
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: certificate-signing-request
+      - name: Sign certificate
+        run: openssl x509 -req -days 365 -in hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id }}.csr -signkey key.pem -out hosts/${{ env.host }}/${{ env.host }}.pem
 #
 #  cleanup:
 #    name: Cleanup

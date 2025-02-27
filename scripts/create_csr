@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+  echo "Must provide target host"
+  exit 1
+fi
+host=$1
+
+if [[ ! -f "hosts/$host/$host.yaml" ]]; then
+  echo "Missing target config"
+  exit 1
+fi
+
+# Make sure we're working with the latest CA
+git pull
+
+# Read data from config
+fqdn=$(cat "hosts/$host/$host.yaml" | yq '.fqdn')
+days=$(cat "hosts/$host/$host.yaml" | yq '.certificate.valid_days')
+ca=$(cat "hosts/$host/$host.yaml" | yq '.certificate.ca')
+
+# Create key pair
+openssl genrsa -out "/.private/$host-private.key" 4096
+
+# Write-protect the key
+chmod 400 "/.private/$host-private.key"
+
+# Create a CSR
+openssl req -new \
+  -out "hosts/$host/$host.csr" \
+  -key "/.private/$host-private.key" \
+  -config "ca-openssl.cnf" \
+  -subj "/CN=$fqdn\/emailAddress=admin@$fqdn/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet" \
+  -days "$days"
+
+# Persist the CSR
+git add "hosts/$host/$host.csr" && git commit -m "Create CSR for $host"

@@ -1,7 +1,7 @@
 FROM alpine
 
 # Install dependencies
-RUN apk add bash openssl zip
+RUN apk add bash openssl yq zip
 
 RUN addgroup catool
 RUN adduser -D -g "catool" -G catool -h "/ca" -H catool
@@ -26,7 +26,7 @@ VOLUME [ "/ca" ]
 VOLUME [ "/certs" ]
 VOLUME [ "/.private" ]
 
-WORKDIR /app
+WORKDIR /ca
 
 # Set up the entry point
 ENTRYPOINT [ "/app/entrypoint" ]
