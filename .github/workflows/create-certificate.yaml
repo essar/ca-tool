@@ -5,29 +5,52 @@ jobs:
   create_csr:
     name: Create CSR
     runs-on: ubuntu-latest
+    env:
+      host: testhost
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
       - name: Read file
         id: readfile
-        run: echo "fqdn=$(cat hosts/testhost/testhost.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
+        run: echo "fqdn=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
       - name: Print FQDN
         run: echo "${{ steps.readfile.outputs.fqdn }}"
       - name: Create key
-        run: openssl genrsa -out hosts/testhost/key.pem 2048
-      - name: Create CSR
-        run: openssl req -new -key hosts/testhost/key.pem -out hosts/testhost/${{ steps.readfile.outputs.fqdn }}.csr -config .default_ca/default-config.cnf -subj "/CN=${{ steps.readfile.outputs.fqdn }}\/emailAddress=admin@${{ steps.readfile.outputs.fqdn }}/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
-      - name: Commit CSR
-        uses: EndBug/add-and-commit@v9.1.4
+        run: openssl genrsa -out hosts/${{ env.host }}/key.pem 2048
+      - name: Save key
+        uses: actions/upload-artifact@v4
         with:
-          add: hosts/testhost/${{ steps.readfile.outputs.fqdn }}.csr
-          author_name: Steve
-          author_email: steve.roberts@essarsoftware.co.uk
-          fetch: false
-          message: "Create CSR for ${{ steps.readfile.outputs.fqdn }}"
+          name: private-key
+          path: hosts/${{ env.host }}/key.pem
+          retention-days: 3
+      - name: Create CSR
+        run: openssl req -new -key hosts/${{ env.host }}/key.pem -out hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id}}.csr -config .default_ca/default-config.cnf -subj "/CN=${{ steps.readfile.outputs.fqdn }}\/emailAddress=admin@${{ steps.readfile.outputs.fqdn }}/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
+      - name: Save CSR
+        uses: actions/upload-artifact@v4
+        with:
+          name: certificate-signing-request
+          path: hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id }}.csr
+          retention-days: 3
+      
 #  sign_csr:
 #    name: Sign CSR
 #    runs-on: ubuntu-latest
+# steps:
+#  - name: Download a single artifact
+#  uses: actions/download-artifact@v4
+#  with:
+#    name: my-artifact
+#
 #  cleanup:
 #    name: Cleanup
 #    runs-on: ubuntu-latest
+
+
+#- name: Commit CSR
+#        uses: EndBug/add-and-commit@v9.1.4
+#        with:
+#          add: hosts/testhost/${{ steps.readfile.outputs.fqdn }}.csr
+#          author_name: Steve
+#          author_email: steve.roberts@essarsoftware.co.uk
+#          fetch: false
+#          message: "Create CSR for ${{ steps.readfile.outputs.fqdn }}"
