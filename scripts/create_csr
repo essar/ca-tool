@@ -35,3 +35,6 @@ openssl req -new \
 
 # Persist the CSR
 git add "hosts/$host/$host.csr" && git commit -m "Create CSR for $host"
+
+# Echo the key
+cat "/.private/$host-private.key"
