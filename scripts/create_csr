@@ -29,8 +29,8 @@ chmod 400 "/.private/$host-private.key"
 openssl req -new \
   -out "hosts/$host/$host.csr" \
   -key "/.private/$host-private.key" \
+  -subj "/CN=$fqdn\/emailAddress=admin@$fqdn/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
   #-config "ca-openssl.cnf" \
-  -subj "/CN=$fqdn\/emailAddress=admin@$fqdn/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet" \
   #-days "$days"
 
 # Persist the CSR
