@@ -4,3 +4,6 @@
 # Local scripts
 *test
 *local
+
+*.log
+*.key
