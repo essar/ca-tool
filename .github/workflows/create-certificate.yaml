@@ -33,14 +33,14 @@ jobs:
       - name: Create chained certificate
         run: |
           cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
-          cat ca/${{ steps.config.outputs.ca }}/${{ steps.config.outputs.ca }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
+          cat ca/${{ steps.config.outputs.ca }}/certs/intermediate.pem >> hosts/${{ env.host }}/certificate-chain.pem
       - name: Save bundle
         uses: actions/upload-artifact@v4
         with:
           name: certificate-bundle
           path: |
             hosts/${{ env.host }}/${{ env.host }}.pem
-            ca/${{ steps.config.outputs.ca }}/key.pem
+            ca/${{ steps.config.outputs.ca }}/certs/intermediate.pem
             hosts/${{ env.host }}/certificate-chain.pem
 
 #
