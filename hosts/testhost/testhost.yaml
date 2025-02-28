@@ -3,5 +3,5 @@ description: |
   A test server used for testing
 certificate:
   enabled: true
-  ca: internal
+  ca: default
   valid_days: 720
