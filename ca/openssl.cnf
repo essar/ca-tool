@@ -1,0 +1,53 @@
+[ ca ]
+default_ca = default_ca
+
+[ default_ca ]
+prompt            = no
+dir               = ./default
+certs             = $dir/certs
+crl_dir           = $dir/crl
+new_certs_dir     = $dir/newcerts
+database          = $dir/index.txt
+serial            = $dir/serial
+RANDFILE          = $dir/private/.rand
+private_key       = $dir/private/key.pem
+certificate       = $dir/certs/default.pem
+crlnumber         = $dir/crlnum
+crl               = $dir/crl/mycrl.pem
+default_crl_days  = 30
+preserve          = no
+policy            = policy
+default_days      = 365
+
+[ policy ]
+commonName              = supplied
+stateOrProvinceName     = supplied
+countryName             = supplied
+emailAddress            = supplied
+organizationName        = supplied
+organizationalUnitName  = supplied
+
+[ req ]
+default_bits        = 4096
+distinguished_name  = req_distinguished_name
+prompt              = no
+
+string_mask         = utf8only
+default_md          = sha256
+x509_extensions     = v3_ca
+
+[ req_distinguished_name ]
+countryName                     = GB
+stateOrProvinceName             = Hampshire
+localityName                    = Winchester
+organizationName                = Essar Software
+organizationalUnitName          = Testing
+commonName                      = Demo CA
+emailAddress                    = administrator@essarsoftware.co.uk
+
+[ v3_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature
+
