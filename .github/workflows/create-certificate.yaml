@@ -1,50 +1,48 @@
 name: Create Certificate
 on:
   push:
+    paths:
+      - hosts/**
 jobs:
-  create_csr:
-    name: Create CSR
+  sign_csr:
+    name: Sign CSR
     runs-on: ubuntu-latest
     env:
       host: testhost
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
-      - name: Read file
-        id: readfile
-        run: echo "fqdn=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
+      - name: Read configuration
+        id: config
+        run: |
+          echo "fqdn=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
+          echo "ca=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.ca')" >> "$GITHUB_OUTPUT"
+          echo "days=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.valid_days')" >> "$GITHUB_OUTPUT"
       - name: Print FQDN
-        run: echo "${{ steps.readfile.outputs.fqdn }}"
-      - name: Create key
-        run: openssl genrsa -out hosts/${{ env.host }}/key.pem 2048
-      - name: Save key
-        uses: actions/upload-artifact@v4
-        with:
-          name: private-key
-          path: hosts/${{ env.host }}/key.pem
-          retention-days: 3
-      - name: Create CSR
-        run: openssl req -new -key hosts/${{ env.host }}/key.pem -out hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id}}.csr -config .default_ca/default-config.cnf -subj "/CN=${{ steps.readfile.outputs.fqdn }}\/emailAddress=admin@${{ steps.readfile.outputs.fqdn }}/C=UK/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet"
-      - name: Save CSR
-        uses: actions/upload-artifact@v4
-        with:
-          name: certificate-signing-request
-          path: hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id }}.csr
-          retention-days: 3
-      
-  sign_csr:
-    name: Sign CSR
-    runs-on: ubuntu-latest
-    env:
-      ca: default
-      host: testhost
-    steps:
-      - name: Download a single artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: certificate-signing-request
+        run: echo "${{ steps.config.outputs.fqdn }}"
       - name: Sign certificate
-        run: openssl x509 -req -days 365 -in hosts/${{ env.host }}/${{ env.host }}-${{ github.run_id }}.csr -signkey key.pem -out hosts/${{ env.host }}/${{ env.host }}.pem
+        env:
+          CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
+        run: |
+          openssl ca \
+            -config ca/openssl.cnf \
+            -name ${{ steps.config.outputs.ca }}_ca \
+            -passin env:CA_KEY_SECRET \
+            -in hosts/${{ env.host }}/${{ env.host }}.csr \
+            -out hosts/${{ env.host }}/${{ env.host }}.pem
+      - name: Create chained certificate
+        run: |
+          cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
+          cat ca/${{ steps.config.outputs.ca }}/${{ steps.config.outputs.ca }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
+      - name: Save bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: certificate-bundle
+          path: |
+            hosts/${{ env.host }}/${{ env.host }}.pem
+            ca/${{ steps.config.outputs.ca }}/key.pem
+            hosts/${{ env.host }}/certificate-chain.pem
+
 #
 #  cleanup:
 #    name: Cleanup
