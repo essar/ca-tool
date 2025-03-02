@@ -24,6 +24,7 @@ jobs:
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
         run: |
+          mkdir -p ca/${{ steps.config.outputs.ca }}/private
           echo $CA_KEY > ca/${{ steps.config.outputs.ca }}/private/key.pem
           chmod 600 ca/${{ steps.config.outputs.ca }}/private/key.pem
       - name: Sign certificate
