@@ -34,7 +34,7 @@ jobs:
           cat ca/default/private/key.pem
           openssl ca \
             -config "ca/openssl.cnf" \
-            -name "${{ steps.config.outputs.ca }}_ca "\
+            -name "${{ steps.config.outputs.ca }}_ca" \
             -passin "env:CA_KEY_SECRET" \
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
             -out "hosts/${{ env.host }}/${{ env.host }}.pem"
