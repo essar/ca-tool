@@ -20,6 +20,12 @@ jobs:
           echo "days=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.valid_days')" >> "$GITHUB_OUTPUT"
       - name: Print FQDN
         run: echo "${{ steps.config.outputs.fqdn }}"
+      - name: Get CA key
+        env:
+          CA_KEY: ${{ secrets.CA_KEY }}
+        run: |
+          echo $CA_KEY > ca/${{ steps.config.outputs.ca }}/private/key.pem
+          chmod 600 ca/${{ steps.config.outputs.ca }}/private/key.pem
       - name: Sign certificate
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
@@ -30,6 +36,8 @@ jobs:
             -passin env:CA_KEY_SECRET \
             -in hosts/${{ env.host }}/${{ env.host }}.csr \
             -out hosts/${{ env.host }}/${{ env.host }}.pem
+      - name: Remove key
+        run: rm ca/${{ steps.config.outputs.ca }}/private/key.pem
       - name: Create chained certificate
         run: |
           cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
