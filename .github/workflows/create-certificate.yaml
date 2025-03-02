@@ -24,20 +24,20 @@ jobs:
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
         run: |
-          mkdir -p ca/${{ steps.config.outputs.ca }}/private
-          echo $CA_KEY > ca/${{ steps.config.outputs.ca }}/private/key.pem
-          chmod 600 ca/${{ steps.config.outputs.ca }}/private/key.pem
+          mkdir -p "ca/${{ steps.config.outputs.ca }}/private"
+          echo $CA_KEY > "ca/${{ steps.config.outputs.ca }}/private/key.pem"
+          chmod 600 "ca/${{ steps.config.outputs.ca }}/private/key.pem"
       - name: Sign certificate
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
         run: |
-          ls -la ca/default/private
+          cat ca/default/private/key.pem
           openssl ca \
-            -config ca/openssl.cnf \
-            -name ${{ steps.config.outputs.ca }}_ca \
-            -passin env:CA_KEY_SECRET \
-            -in hosts/${{ env.host }}/${{ env.host }}.csr \
-            -out hosts/${{ env.host }}/${{ env.host }}.pem
+            -config "ca/openssl.cnf" \
+            -name "${{ steps.config.outputs.ca }}_ca "\
+            -passin "env:CA_KEY_SECRET" \
+            -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
+            -out "hosts/${{ env.host }}/${{ env.host }}.pem"
       - name: Remove key
         run: rm ca/${{ steps.config.outputs.ca }}/private/key.pem
       - name: Create chained certificate
