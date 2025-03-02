@@ -31,6 +31,7 @@ jobs:
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
         run: |
+          ls -la ca/default/private
           openssl ca \
             -config ca/openssl.cnf \
             -name ${{ steps.config.outputs.ca }}_ca \

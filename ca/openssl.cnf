@@ -3,7 +3,7 @@ default_ca = default_ca
 
 [ default_ca ]
 prompt            = no
-dir               = ca/default
+dir               = $ENV::GITHUB_WORKSPACE/ca/default
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
