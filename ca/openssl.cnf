@@ -35,7 +35,7 @@ prompt              = no
 
 string_mask         = utf8only
 default_md          = sha256
-#x509_extensions     = v3_ca
+#x509_extensions    = v3_ca
 x509_extensions     = v3_req
 
 [ req_distinguished_name ]
@@ -54,6 +54,12 @@ basicConstraints       = critical, CA:true
 keyUsage               = critical, digitalSignature, keyCertSign
 
 [ v3_req ]
+subjectKeyIdentifier   = hash
+keyUsage               = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth
+nsCertType             = server
+
+[ v3_svr ]
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid:always,issuer
 basicConstraints       = CA:false
