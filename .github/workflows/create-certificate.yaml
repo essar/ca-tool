@@ -54,6 +54,7 @@ jobs:
           openssl rsa -in "$CA_HOME/private/key.pem" -passin "env:CA_KEY_SECRET" -check -noout
           openssl ca \
             -config "ca/openssl.cnf" \
+            -extensions "v3_svr" \
             -name "${{ steps.config.outputs.ca }}_ca" \
             -passin "env:CA_KEY_SECRET" \
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
