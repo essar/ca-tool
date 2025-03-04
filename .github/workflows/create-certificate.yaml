@@ -29,6 +29,12 @@ jobs:
           mkdir -p "$CA_HOME/newcerts"
           mkdir -p "$CA_HOME/private"
           chmod 700 "$CA_HOME/private"
+          if [ ! -f "$CA_HOME/index.txt" ]; then
+            touch "$CA_HOME/index.txt"
+          fi
+          if [ ! -f "$CA_HOME/serial" ]; then
+            echo 00 > "$CA_HOME/serial"
+          fi
       - name: Get CA key
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
@@ -51,10 +57,10 @@ jobs:
             -passin "env:CA_KEY_SECRET" \
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
             -out "hosts/${{ env.host }}/${{ env.host }}.pem"
-      - name: Remove key
+      - name: Remove private files
         env:
           CA_HOME: ca/${{ steps.config.outputs.ca }}
-        run: rm "$CA_HOME/private/key.pem"
+        run: rm -f "$CA_HOME/private"
       - name: Create chained certificate
         env:
           CA_HOME: ca/${{ steps.config.outputs.ca }}
