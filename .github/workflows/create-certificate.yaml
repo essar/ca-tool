@@ -23,15 +23,17 @@ jobs:
       - name: Get CA key
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
+          CA_HOME: "ca/${{ steps.config.outputs.ca }}"
         run: |
-          mkdir -p "ca/${{ steps.config.outputs.ca }}/private"
-          echo $CA_KEY > "ca/${{ steps.config.outputs.ca }}/private/key.pem"
-          chmod 600 "ca/${{ steps.config.outputs.ca }}/private/key.pem"
+          mkdir -p "$CA_HOME/private"
+          echo $CA_KEY > "$CA_HOME/private/key.pem"
+          chmod 600 "$CA_HOME/private/key.pem"
       - name: Sign certificate
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
+          CA_HOME: "ca/${{ steps.config.outputs.ca }}"
         run: |
-          cat ca/default/private/key.pem
+          ls -la "$CA_HOME/private/key.pem"
           openssl ca \
             -config "ca/openssl.cnf" \
             -name "${{ steps.config.outputs.ca }}_ca" \
@@ -39,11 +41,13 @@ jobs:
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
             -out "hosts/${{ env.host }}/${{ env.host }}.pem"
       - name: Remove key
-        run: rm ca/${{ steps.config.outputs.ca }}/private/key.pem
+        run: rm "$CA_HOME/private/key.pem"
       - name: Create chained certificate
+        env:
+          CA_HOME: "ca/${{ steps.config.outputs.ca }}"
         run: |
           cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
-          cat ca/${{ steps.config.outputs.ca }}/certs/intermediate.pem >> hosts/${{ env.host }}/certificate-chain.pem
+          cat "$CA_HOME/certs/intermediate.pem" >> hosts/${{ env.host }}/certificate-chain.pem
       - name: Save bundle
         uses: actions/upload-artifact@v4
         with:
