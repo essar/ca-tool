@@ -71,4 +71,4 @@ subjectAltName         = @sans
 
 [ sans ]
 DNS.0 = localhost
-DNS.1 = $ENV::fqdn
+DNS.1 = $ENV::FQDN

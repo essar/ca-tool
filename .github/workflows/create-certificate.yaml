@@ -48,6 +48,7 @@ jobs:
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
           CA_HOME: ca/${{ steps.config.outputs.ca }}
+          FQDN: ${{ steps.config.outputs.fqdn }}
         run: |
           ls -la "$CA_HOME/private/key.pem"
           openssl rsa -in "$CA_HOME/private/key.pem" -passin "env:CA_KEY_SECRET" -check -noout
