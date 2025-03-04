@@ -72,7 +72,7 @@ jobs:
       - name: Save bundle
         uses: actions/upload-artifact@v4
         with:
-          name: certificate-bundle
+          name: ${{ env.host }}-certificate-bundle
           path: |
             hosts/${{ env.host }}/${{ env.host }}.pem
             ca/${{ steps.config.outputs.ca }}/certs/intermediate.pem
