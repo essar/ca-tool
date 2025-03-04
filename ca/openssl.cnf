@@ -18,6 +18,7 @@ default_crl_days  = 30
 preserve          = no
 policy            = policy
 default_days      = 365
+default_md        = sha256
 
 [ policy ]
 commonName              = supplied
