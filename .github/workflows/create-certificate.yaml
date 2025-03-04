@@ -4,25 +4,43 @@ on:
     paths:
       - hosts/**
 jobs:
-  sign_csr:
-    name: Sign CSR
+  read_config:
+    name: Read configuration
     runs-on: ubuntu-latest
     env:
       host: testhost
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
-      - name: Read configuration
-        id: config
-        run: |
-          echo "fqdn=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
-          echo "ca=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.ca')" >> "$GITHUB_OUTPUT"
-          echo "days=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.valid_days')" >> "$GITHUB_OUTPUT"
+      - name: Read FQDN
+        id: fqdn
+        run: echo "fqdn=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.fqdn')" >> "$GITHUB_OUTPUT"
+      - name: Read CA
+        id: ca
+        run: echo "ca=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.ca')" >> "$GITHUB_OUTPUT"
+      - name: Read days
+        id: days
+        run: echo "days=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.valid_days')" >> "$GITHUB_OUTPUT"
+    outputs:
+      ca: ${{ steps.config.ca.ca }}
+      days: ${{ steps.config.days.days }}
+      fqdn: ${{ steps.config.fqdn.fqdn }}
+
+
+  sign_csr:
+    name: Sign certificate
+    runs-on: ubuntu-latest
+    needs: read_config
+    env:
+      host: testhost
+      CA_HOME: ca/${{ needs.read_config.outputs.ca }}
+      FQDN: ${{ needs.read_config.outputs.fqdn }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
       - name: Print FQDN
-        run: echo "${{ steps.config.outputs.fqdn }}"
+        run: echo "$FQDN"
       - name: Set up CA directory
-        env:
-          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           mkdir -p "$CA_HOME/certs"
           mkdir -p "$CA_HOME/crl"
@@ -38,7 +56,6 @@ jobs:
       - name: Get CA key
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
-          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           cat <<EOF > "$CA_HOME/private/key.pem"
           $CA_KEY
@@ -47,26 +64,18 @@ jobs:
       - name: Sign certificate
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
-          CA_HOME: ca/${{ steps.config.outputs.ca }}
-          FQDN: ${{ steps.config.outputs.fqdn }}
         run: |
           ls -la "$CA_HOME/private/key.pem"
           openssl rsa -in "$CA_HOME/private/key.pem" -passin "env:CA_KEY_SECRET" -check -noout
           openssl ca \
             -config "ca/openssl.cnf" \
             -extensions "v3_svr" \
-            -name "${{ steps.config.outputs.ca }}_ca" \
+            -name "${{ needs.read_config.outputs.ca }}_ca" \
             -passin "env:CA_KEY_SECRET" \
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
             -out "hosts/${{ env.host }}/${{ env.host }}.pem" \
             -batch
-      - name: Remove private files
-        env:
-          CA_HOME: ca/${{ steps.config.outputs.ca }}
-        run: rm -f "$CA_HOME/private/*"
       - name: Create chained certificate
-        env:
-          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
           cat "$CA_HOME/certs/intermediate.pem" >> hosts/${{ env.host }}/certificate-chain.pem
@@ -74,12 +83,14 @@ jobs:
       - name: Save bundle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.host }}-certificate-bundle
+          name: certificate-bundle
           path: |
             hosts/${{ env.host }}/${{ env.host }}.pem
-            ca/${{ steps.config.outputs.ca }}/certs/intermediate.pem
+            ca/${{ needs.read_config.outputs.ca }}/certs/intermediate.pem
             hosts/${{ env.host }}/certificate-chain.pem
-
+      - name: Remove private files
+        run: rm -f "$CA_HOME/private/*"
+      
 #
 #  cleanup:
 #    name: Cleanup
