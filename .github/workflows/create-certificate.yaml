@@ -56,17 +56,19 @@ jobs:
             -name "${{ steps.config.outputs.ca }}_ca" \
             -passin "env:CA_KEY_SECRET" \
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
-            -out "hosts/${{ env.host }}/${{ env.host }}.pem"
+            -out "hosts/${{ env.host }}/${{ env.host }}.pem" \
+            -batch
       - name: Remove private files
         env:
           CA_HOME: ca/${{ steps.config.outputs.ca }}
-        run: rm -f "$CA_HOME/private"
+        run: rm -f "$CA_HOME/private/*"
       - name: Create chained certificate
         env:
           CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
           cat "$CA_HOME/certs/intermediate.pem" >> hosts/${{ env.host }}/certificate-chain.pem
+          #cat "root.pem" >> hosts/${{ env.host }}/certificate-chain.pem
       - name: Save bundle
         uses: actions/upload-artifact@v4
         with:
