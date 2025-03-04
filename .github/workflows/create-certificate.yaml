@@ -33,7 +33,7 @@ jobs:
             touch "$CA_HOME/index.txt"
           fi
           if [ ! -f "$CA_HOME/serial" ]; then
-            echo 00 > "$CA_HOME/serial"
+            echo 01 > "$CA_HOME/serial"
           fi
       - name: Get CA key
         env:
