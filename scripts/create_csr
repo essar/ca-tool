@@ -30,7 +30,7 @@ openssl req -new \
   -out "hosts/$host/$host.csr" \
   -key "/.private/$host-private.key" \
   -subj "/C=GB/ST=Hampshire/L=Winchester/O=Essar Software/OU=Hazelnet/CN=${fqdn}/emailAddress=admin@${fqdn}" \
-  -config "ca/ca-openssl.cnf" \
+  -config "ca/openssl.cnf" \
   -extensions "v3_req"
   #-days "$days"
 
