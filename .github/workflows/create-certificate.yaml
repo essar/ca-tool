@@ -32,9 +32,11 @@ jobs:
       - name: Get CA key
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
-          CA_HOME: "ca/${{ steps.config.outputs.ca }}"
+          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
-          echo $CA_KEY > "$CA_HOME/private/key.pem"
+          cat <<EOF > "$CA_HOME/private/key.pem"
+          $CA_KEY
+          EOF
           chmod 600 "$CA_HOME/private/key.pem"
       - name: Sign certificate
         env:
