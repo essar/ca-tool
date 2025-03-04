@@ -42,7 +42,7 @@ jobs:
           CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           ls -la "$CA_HOME/private/key.pem"
-          openssl rsa -in "$CA_HOME/private/key.pem" -passin "env:CA_KEY_SECRET"
+          openssl rsa -in "$CA_HOME/private/key.pem" -passin "env:CA_KEY_SECRET" -check
           openssl ca \
             -config "ca/openssl.cnf" \
             -name "${{ steps.config.outputs.ca }}_ca" \
