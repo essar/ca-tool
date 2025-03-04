@@ -20,18 +20,26 @@ jobs:
           echo "days=$(cat hosts/${{ env.host }}/${{ env.host }}.yaml | yq '.certificate.valid_days')" >> "$GITHUB_OUTPUT"
       - name: Print FQDN
         run: echo "${{ steps.config.outputs.fqdn }}"
+      - name: Set up CA directory
+        env:
+          CA_HOME: ca/${{ steps.config.outputs.ca }}
+        run: |
+          mkdir -p "$CA_HOME/certs"
+          mkdir -p "$CA_HOME/crl"
+          mkdir -p "$CA_HOME/newcerts"
+          mkdir -p "$CA_HOME/private"
+          chmod 700 "$CA_HOME/private"
       - name: Get CA key
         env:
           CA_KEY: ${{ secrets.CA_KEY }}
           CA_HOME: "ca/${{ steps.config.outputs.ca }}"
         run: |
-          mkdir -p "$CA_HOME/private"
           echo $CA_KEY > "$CA_HOME/private/key.pem"
           chmod 600 "$CA_HOME/private/key.pem"
       - name: Sign certificate
         env:
           CA_KEY_SECRET: ${{ secrets.CA_KEY_SECRET }}
-          CA_HOME: "ca/${{ steps.config.outputs.ca }}"
+          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           ls -la "$CA_HOME/private/key.pem"
           openssl ca \
@@ -41,10 +49,12 @@ jobs:
             -in "hosts/${{ env.host }}/${{ env.host }}.csr" \
             -out "hosts/${{ env.host }}/${{ env.host }}.pem"
       - name: Remove key
+        env:
+          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: rm "$CA_HOME/private/key.pem"
       - name: Create chained certificate
         env:
-          CA_HOME: "ca/${{ steps.config.outputs.ca }}"
+          CA_HOME: ca/${{ steps.config.outputs.ca }}
         run: |
           cat hosts/${{ env.host }}/${{ env.host }}.pem >> hosts/${{ env.host }}/certificate-chain.pem
           cat "$CA_HOME/certs/intermediate.pem" >> hosts/${{ env.host }}/certificate-chain.pem
